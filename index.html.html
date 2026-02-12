@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>JAI HANUMAN Magic Counter</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    body {
+      margin: 0;
+      background: #0f172a;
+      font-family: Arial, sans-serif;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* 🖼 Image */
+    .image-container {
+      margin-bottom: 15px;
+      cursor: pointer;
+    }
+
+    .image-container img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow:
+        0 0 10px gold,
+        0 0 25px orange,
+        0 0 40px #ffae00;
+    }
+
+    /* 🔥 Glowing Title */
+    .title {
+      font-size: 42px;
+      margin-bottom: 20px;
+      font-weight: bold;
+      color: gold;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 10px gold,
+        0 0 20px orange,
+        0 0 40px #ffae00;
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from { text-shadow: 0 0 10px gold; }
+      to { text-shadow: 0 0 20px #fff, 0 0 40px gold; }
+    }
+
+    .card {
+      width: 80%;
+      max-width: 400px;
+      height: 250px;
+      background: #1e293b;
+      border-radius: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      cursor: pointer;
+      box-shadow: 0 0 40px rgba(0,0,0,0.6);
+      overflow: hidden;
+      margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 120px;
+      margin: 0;
+      z-index: 10;
+      transition: transform 0.15s ease;
+    }
+
+    .pulse {
+      transform: scale(1.1);
+    }
+
+    .reset-btn {
+      padding: 10px 25px;
+      border: none;
+      border-radius: 10px;
+      background: black;
+      color: white;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    /* ⭐ Star */
+    .star {
+      position: absolute;
+      pointer-events: none;
+      background: gold;
+      clip-path: polygon(
+        50% 0%, 
+        61% 35%, 
+        98% 35%, 
+        68% 57%, 
+        79% 91%, 
+        50% 70%, 
+        21% 91%, 
+        32% 57%, 
+        2% 35%, 
+        39% 35%
+      );
+      box-shadow: 
+        0 0 10px gold,
+        0 0 20px #00bfff,
+        0 0 40px #00bfff;
+    }
+
+    /* 🖼 Fullscreen Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      cursor: pointer;
+    }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 40px gold;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Image -->
+  <div class="image-container" id="imageContainer">
+    <img src="Hanuman.jpg" alt="Hanuman">
+  </div>
+
+  <div class="title">JAI HANUMAN</div>
+
+  <div class="card" id="card">
+    <h1 id="count">0</h1>
+  </div>
+
+  <button class="reset-btn" id="resetBtn">Reset</button>
+
+  <!-- Fullscreen Modal -->
+  <div class="modal" id="modal">
+    <img src="C:/Users/Admin/Downloads/Hanuman.jpg">
+  </div>
+
+  <script>
+    const card = document.getElementById("card");
+    const countDisplay = document.getElementById("count");
+    const resetBtn = document.getElementById("resetBtn");
+    const modal = document.getElementById("modal");
+    const imageContainer = document.getElementById("imageContainer");
+
+    let count = localStorage.getItem("tapCount") || 0;
+    countDisplay.textContent = count;
+
+    function createStars(x, y) {
+      const numberOfStars = Math.floor(Math.random() * 3) + 3;
+
+      for (let i = 0; i < numberOfStars; i++) {
+        const star = document.createElement("div");
+        star.classList.add("star");
+
+        const size = Math.random() * 16 + 14;
+        star.style.width = size + "px";
+        star.style.height = size + "px";
+
+        star.style.left = x + "px";
+        star.style.top = y + "px";
+
+        document.body.appendChild(star);
+
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = Math.random() * 140 + 60;
+
+        const moveX = Math.cos(angle) * distance;
+        const moveY = Math.sin(angle) * distance;
+
+        star.animate([
+          { transform: "translate(0,0) scale(1)", opacity: 1 },
+          { transform: `translate(${moveX}px, ${moveY}px) scale(0.3)`, opacity: 0 }
+        ], {
+          duration: 900,
+          easing: "ease-out"
+        });
+
+        setTimeout(() => star.remove(), 900);
+      }
+    }
+
+    function incrementCounter(e) {
+      count++;
+      countDisplay.textContent = count;
+      localStorage.setItem("tapCount", count);
+
+      countDisplay.classList.add("pulse");
+      setTimeout(() => countDisplay.classList.remove("pulse"), 150);
+
+      createStars(e.clientX, e.clientY);
+    }
+
+    // Card click
+    card.addEventListener("click", incrementCounter);
+
+    // Image click → open modal
+    imageContainer.addEventListener("click", function(e) {
+      e.stopPropagation();
+      modal.style.display = "flex";
+    });
+
+    // Modal click → count + close
+    modal.addEventListener("click", function(e) {
+      incrementCounter(e);
+      modal.style.display = "none";
+    });
+
+    // Reset button
+    resetBtn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      count = 0;
+      countDisplay.textContent = count;
+      localStorage.setItem("tapCount", count);
+    });
+
+  </script>
+
+</body>
+</html>
